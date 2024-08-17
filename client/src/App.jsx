@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { useUser } from "./context/UserContext";
+import LoginPage from "./pages/LoginPage";
+import TestDashboard from "./pages/TestDashboard";
+import TestPage from "./pages/TestPage";
+import FinishPage from "./pages/FinishPage";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user } = useUser();
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route
+          path="/dashboard" element = {<TestDashboard/>}
+          // element={user ? <TestDashboard /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/test" element = {<TestPage/>}
+          // element={user ? <TestPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/finish" element = {<FinishPage/>}
+          // element={user ? <FinishPage /> : <Navigate to="/" />}
+        />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
