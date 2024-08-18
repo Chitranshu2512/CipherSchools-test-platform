@@ -41,6 +41,10 @@ const submissionSchema = new Schema({
     default: false 
   },
 
+  resultScore: {
+    type: Number,
+    default: null
+  }
   
 }, {timestamps: true});
 
