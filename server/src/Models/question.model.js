@@ -1,10 +1,31 @@
-import mongoose from 'mongoose';
+// this is question.model.js
+import mongoose, { Schema } from 'mongoose';
 
-const questionSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  options: [{ text: String, isCorrect: Boolean }],
-  test: { type: mongoose.Schema.Types.ObjectId, ref: 'Test', required: true },
-});
+const questionSchema = new Schema({
 
-const Question = mongoose.model('Question', questionSchema);
+  question: { 
+    type: String, 
+    required: true 
+  },
+
+  options: [String],
+
+  testId:{
+    type: Schema.Types.ObjectId,
+    ref: "Test"
+  },
+
+  marks: { 
+    type: Number, 
+    required: true 
+  }, 
+
+  correctOption: { 
+    type: String, 
+    required: true 
+  },
+  
+}, {timestamps: true});
+
+const Question = mongoose.model("Question", questionSchema);
 export default Question;

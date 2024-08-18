@@ -1,10 +1,14 @@
-import express from 'express';
-import { submitTest, getSubmissions } from '../controllers/submissionController.js';
-import authMiddleware from '../middleware/authMiddleware.js';
+// this is submission.route.js
 
-const router = express.Router();
+import { Router } from 'express';
+import { submitTest, getSubmissions } from '../controllers/submission.controller.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
 
-router.post('/', authMiddleware, submitTest);
-router.get('/:userId', authMiddleware, getSubmissions);
+const router = Router();
+
+router.route('/submitTest').post(authMiddleware, submitTest);
+router.route('/:userId').get(authMiddleware, getSubmissions);
 
 export default router;
+
+

@@ -1,21 +1,47 @@
-import Test from '../models/Test.js';
+// this is test.controller.js
 
-export const createTest = async (req, res) => {
-  try {
-    const { title, description, questions } = req.body;
-    const test = new Test({ title, description, questions, createdBy: req.user.userId });
-    await test.save();
-    res.status(201).json({ message: 'Test created successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating test', error });
-  }
-};
+import Test from '../models/test.model.js';
+import { asyncHandler } from '../Utils/asyncHandler.js';
+import { ApiError } from '../Utils/ApiError.js'
+import { ApiResponse } from '../Utils/ApiResponse.js';
 
-export const getTests = async (req, res) => {
+
+export const getTests = asyncHandler(async(req, res) => {
+    const testId = req.param
+
+    try {
+      
+      const test = await Test.findOne({
+        $and: [{testId}, {isDeleted: false}]
+    }).select("-questions")
+
+    return res.status(200)
+    .json(new ApiResponse(200, test, "test is available"))
+
+
+    } catch (error) {
+      throw new ApiError(500, "Test is not available")
+    }
+
+})
+
+
+
+export const attempTests = asyncHandler(async(req, res) => {
+  const testId = req.param
+
   try {
-    const tests = await Test.find().populate('questions');
-    res.json(tests);
+    
+    const test = await Test.findOne({
+      $and: [{testId}, {isDeleted: false}]
+  }).populate('questions');
+
+  return res.status(200)
+  .json(new ApiResponse(200, test, "Start attempting your test"))
+
+
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching tests', error });
+    throw new ApiError(500, "Test is not available")
   }
-};
+
+})

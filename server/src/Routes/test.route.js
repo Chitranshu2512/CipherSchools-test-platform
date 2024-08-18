@@ -1,10 +1,11 @@
-import express from 'express';
-import { createTest, getTests } from '../controllers/testController.js';
-import authMiddleware from '../middleware/authMiddleware.js';
+// this is test.route.js
 
-const router = express.Router();
 
-router.post('/', authMiddleware, createTest);
-router.get('/', authMiddleware, getTests);
+import { Router } from 'express';
+import { getTests } from '../controllers/test.controller.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
+
+const router = Router();
+router.route('/').get(authMiddleware, getTests);
 
 export default router;
