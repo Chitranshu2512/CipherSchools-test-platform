@@ -4,14 +4,14 @@ import Test from '../models/test.model.js';
 import { asyncHandler } from '../Utils/asyncHandler.js';
 import { ApiError } from '../Utils/ApiError.js'
 import { ApiResponse } from '../Utils/ApiResponse.js';
+import Question from '../models/question.model.js';
 
 
 export const getTests = asyncHandler(async(req, res) => {
-    const testId = req.param
+    const {testId} = req.body
 
     try {
-      
-      const test = await Test.findOne({
+        const test = await Test.findOne({
         $and: [{testId}, {isDeleted: false}]
     }).select("-questions")
 
@@ -27,17 +27,18 @@ export const getTests = asyncHandler(async(req, res) => {
 
 
 
-export const attempTests = asyncHandler(async(req, res) => {
-  const testId = req.param
-
+export const attemptTest = asyncHandler(async(req, res) => {
+  const {testId} = req.body
+  const user = req.user
   try {
-    
     const test = await Test.findOne({
-      $and: [{testId}, {isDeleted: false}]
-  }).populate('questions');
-
+      testId,
+      isDeleted: false
+    }).populate('questions');
+    console.log("Test document:", test);
+    
   return res.status(200)
-  .json(new ApiResponse(200, test, "Start attempting your test"))
+  .json(new ApiResponse(200, {test, user}, "Start attempting your test"))
 
 
   } catch (error) {

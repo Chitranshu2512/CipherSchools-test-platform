@@ -5,7 +5,7 @@ export const sendEmail = async (to, subject, htmlContent) => {
   try {
     // Create a transporter using Mailtrap's SMTP settings
     const transporter = nodemailer.createTransport({
-      host: 'bulk.smtp.mailtrap.io', 
+      host: 'live.smtp.mailtrap.io', 
       port: 587, 
       auth: {
         user: process.env.MAILTRAP_USER, 
@@ -14,8 +14,9 @@ export const sendEmail = async (to, subject, htmlContent) => {
     });
 
     // Mail options
+    console.log(to)
     const mailOptions = {
-      from: `"CipherSchools" <${process.env.EMAIL_USER}>`,
+      from: `"cipherSchool@${process.env.EMAIL_USER}`,
       to, 
       subject, 
       html: htmlContent, 

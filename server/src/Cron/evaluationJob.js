@@ -1,3 +1,5 @@
+// this is cron job
+
 import cron from "node-cron";
 import Submission from "../models/submission.model.js";
 import Question from "../models/question.model.js";
@@ -42,7 +44,7 @@ const evaluateSubmission = async (submission) => {
 };
 
 // Function to process and evaluate all submissions
-const processSubmissions = async () => {
+export const processSubmissions = async () => {
   try {
     // Fetch all non-deleted submissions
     const submissions = await Submission.find({ isDeleted: false });
@@ -50,6 +52,7 @@ const processSubmissions = async () => {
     // Iterate over each submission and update the result score
     for (const submission of submissions) {
       const { score, maxMarks } = await evaluateSubmission(submission);
+      submission.isDeleted = true;
       submission.resultScore = score;
 
       await submission.save();

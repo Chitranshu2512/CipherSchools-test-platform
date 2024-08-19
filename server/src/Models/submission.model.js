@@ -1,6 +1,7 @@
 // this is submission.model.js
 
 import mongoose, { Schema } from 'mongoose';
+import User from './user.model.js';
 
 const submissionSchema = new Schema({
   

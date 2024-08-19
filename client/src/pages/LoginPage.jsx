@@ -1,55 +1,93 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
-import axios from "axios";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { TextField, Button, Box, Typography, Container, Paper } from '@mui/material';
+import authService from '../services/authService';
 
-function LoginPage() {
+const LoginPage = () => {
+  const location = useLocation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useUser();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    const testId = new URLSearchParams(location.search).get('testId');
     try {
-      const response = await axios.post("/api/auth/login", { email, password });
-      const { token, userData } = response.data;
-      login({ token, ...userData });
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login failed", error);
-      alert("Invalid credentials");
+      const response = await authService.login(email, password);
+      if (response.loggedInUser) {
+        navigate(`/dashboard?testId=${testId}`);
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      setError('Invalid credentials');
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md">
-        <h2 className="text-2xl mb-6">Login</h2>
-        <div className="mb-4">
-          <label className="block mb-2">Email</label>
-          <input
-            type="email"
+    <Container 
+      maxWidth="sm" 
+      sx={{ 
+        minHeight: '75vh', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+      }}
+    >
+      <Paper elevation={6} sx={{ padding: 5, width: '100%' }}>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          align="center" 
+          gutterBottom 
+          sx={{ fontWeight: 'bold' }}
+        >
+          Sign In
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
+        >
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
+            required
           />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Password</label>
-          <input
+          <TextField
+            label="Password"
             type="password"
+            variant="outlined"
+            fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded"
+            required
           />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
-    </div>
+          {error && (
+            <Typography variant="body2" color="error" align="center">
+              {error}
+            </Typography>
+          )}
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            sx={{ py: 1.5 }}
+          >
+            Sign In
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
-}
+};
 
 export default LoginPage;

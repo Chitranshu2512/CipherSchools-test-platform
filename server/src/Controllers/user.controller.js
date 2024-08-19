@@ -1,11 +1,11 @@
-// this is auth.controller.js
+// this is user.controller.js
 import User from '../models/user.model.js';
-import bcrypt from 'bcrypt';
 import { asyncHandler } from '../Utils/asyncHandler.js';
 import { ApiError } from '../Utils/ApiError.js'
 import { ApiResponse } from '../Utils/ApiResponse.js';
 
 
+// login controller
 export const login = asyncHandler(async(req, res) => {
 
   const{email, password} = req.body
@@ -14,7 +14,6 @@ export const login = asyncHandler(async(req, res) => {
     throw new ApiError(400, "email and password are required")
   }
 
-
   const user = await User.findOne({email})
 
   if(!user){
@@ -22,7 +21,7 @@ export const login = asyncHandler(async(req, res) => {
   }
 
   // decrypt the password
-  const isPasswordvalid = user.isPasswordCorrect(password)
+  const isPasswordvalid = await user.isPasswordCorrect(password)
 
   // check password
   if(!isPasswordvalid){
@@ -30,9 +29,7 @@ export const login = asyncHandler(async(req, res) => {
   }
 
   const accessToken = user.generateAccessToken()
-
   const loggedInUser = await User.findById(user._id).select("-password")
-
 
   // declare a option obj to send it with cookies as response
     const options = {
@@ -45,4 +42,5 @@ export const login = asyncHandler(async(req, res) => {
     .json(
         new ApiResponse(200, {loggedInUser,accessToken}, "user logged in successfully")
     )
+    
 });
