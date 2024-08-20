@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { TextField, Button, Box, Typography, Container, Paper } from '@mui/material';
 import authService from '../services/authService';
 
-const LoginPage = () => {
+const LoginPage = ({setUser}) => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +18,7 @@ const LoginPage = () => {
     try {
       const response = await authService.login(email, password);
       if (response.loggedInUser) {
+        setUser(true)
         navigate(`/dashboard?testId=${testId}`);
       } else {
         setError('Invalid credentials');
