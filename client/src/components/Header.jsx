@@ -3,11 +3,11 @@ import { AppBar, Toolbar, Typography, Container } from '@mui/material';
 
 const Header = () => {
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#2c3e50', boxShadow: 'none' }}>
+    <AppBar position="static" sx={{ backgroundColor: '#1976ff', boxShadow: 'none' }}>
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            OnlineTest Portal
+            CipherSchools Tests
           </Typography>
         </Toolbar>
       </Container>

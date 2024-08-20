@@ -8,12 +8,14 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { Box } from '@mui/material';
 
+
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ width: '100%', flexGrow: 1, p: 0, m:0 }}>
         <Router />
       </Box>
       <Footer />

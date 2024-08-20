@@ -7,12 +7,16 @@ const theme = createTheme({
       main: '#1976d2',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#06038D',
+    },
+    warning: {
+      main: '#800500', // Your desired dark green color
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
 });
+
 
 export default theme;

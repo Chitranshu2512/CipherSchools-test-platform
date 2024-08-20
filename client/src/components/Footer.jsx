@@ -14,7 +14,7 @@ const Footer = () => {
     >
       <Container maxWidth="lg">
         <Typography variant="body2" align="center">
-          © {new Date().getFullYear()} SkillForge Portal. All rights reserved.
+          © {new Date().getFullYear()} CipherSchools Tests. All rights reserved.
         </Typography>
       </Container>
     </Box>

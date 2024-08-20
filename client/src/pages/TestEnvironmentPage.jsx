@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import testService from '../services/testService'; // Adjust the path if needed
-import submissionService from '../services/submissionService'; // New import for submission service
-import { Container, Typography, Button, AppBar, Toolbar, Grid, Paper, Chip, CircularProgress } from '@mui/material';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import testService from "../services/testService";
+import submissionService from "../services/submissionService";
+import TestHeader from "../components/TestHeader";
+import TestFooter from "../components/TestFooter";
+import QuestionComponent from "../components/QuestionComponent";
+import NavigationComponent from "../components/NavigationComponent";
+import QuestionBoardComponent from "../components/QuestionBoardComponent";
+import TimerComponent from "../components/TimerComponent";
+import LoaderComponent from "../components/LoaderComponent";
+import { Container, Divider, Grid, Box } from "@mui/material";
 
 const TestEnvironment = () => {
   const [test, setTest] = useState(null);
@@ -12,16 +19,22 @@ const TestEnvironment = () => {
   const [timer, setTimer] = useState(0);
   const [user, setUser] = useState();
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     const fetchTest = async () => {
-      const testId = '66c24be05c552c76d02ace93'; // Replace with actual testId
-      const {data, user} = await testService.attemptTest(testId);
+      const testId = new URLSearchParams(location.search).get("testId");
+      const { data, user } = await testService.attemptTest(testId);
       setTest(data);
-      setUser(user)
+      setUser(user);
       if (data && data.questions) {
-        setQuestionStates(['visited', ...new Array(data.questions.length - 1).fill('not visited')]); // First question marked as visited
-        setSelectedAnswers(new Array(data.questions.length).fill(null)); // Initialize selected answers as null
-        setTimer(data.questions.length * 2 * 60); // Total time in seconds (2 minutes per question)
+        setQuestionStates([
+          "visited",
+          ...new Array(data.questions.length - 1).fill("not visited"),
+        ]);
+        setSelectedAnswers(new Array(data.questions.length).fill(null));
+        setTimer(data.questions.length * 2 * 60); // Assuming 2 minutes per question
       }
     };
 
@@ -35,17 +48,18 @@ const TestEnvironment = () => {
       }, 1000);
       return () => clearInterval(interval);
     } else {
-      handleSubmit(); // Automatically submit when time is over
+      handleSubmit();
     }
   }, [timer]);
 
   const handleAnswerSelection = (index) => {
     const updatedStates = [...questionStates];
-    updatedStates[currentQuestionIndex] = 'answered';
+    updatedStates[currentQuestionIndex] = "answered";
     setQuestionStates(updatedStates);
 
     const updatedAnswers = [...selectedAnswers];
-    updatedAnswers[currentQuestionIndex] = test.questions[currentQuestionIndex].options[index];
+    updatedAnswers[currentQuestionIndex] =
+      test.questions[currentQuestionIndex].options[index];
     setSelectedAnswers(updatedAnswers);
   };
 
@@ -65,7 +79,7 @@ const TestEnvironment = () => {
 
   const handleMarkForReview = () => {
     const updatedStates = [...questionStates];
-    updatedStates[currentQuestionIndex] = 'review';
+    updatedStates[currentQuestionIndex] = "review";
     setQuestionStates(updatedStates);
   };
 
@@ -75,21 +89,14 @@ const TestEnvironment = () => {
   };
 
   const updateStateOnNavigation = (index) => {
-    if (questionStates[index] === 'not visited') {
+    if (questionStates[index] === "not visited") {
       const updatedStates = [...questionStates];
-      updatedStates[index] = 'visited';
+      updatedStates[index] = "visited";
       setQuestionStates(updatedStates);
     }
   };
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
   const handleSubmit = async () => {
-    console.log(user._id)
     const submissionData = {
       testId: test._id,
       userID: user._id,
@@ -100,98 +107,139 @@ const TestEnvironment = () => {
       endedAt: new Date(),
     };
 
-    await submissionService.submitTest(submissionData); // Submitting test data
+    const response = await submissionService.submitTest(submissionData);
+    if (response) {
+      navigate("/finish"); // Navigate to finish page
+    }
   };
 
-  if (!test) return <CircularProgress />;
+  if (!test) return <LoaderComponent />;
 
   return (
-    <Container>
-      {/* Header Section */}
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            Test Name: {test.title}
-          </Typography>
-          <Typography variant="subtitle1" component="div" sx={{ mr: 2 }}>
-            Test ID: {test._id}
-          </Typography>
-          <Typography variant="subtitle1" component="div">
-            Username: User
-          </Typography>
-          <Button color="inherit" sx={{ ml: 2 }} onClick={handleSubmit}>Submit Test</Button>
-        </Toolbar>
-      </AppBar>
-
-      {/* Questions Section */}
-      <Paper sx={{ p: 3, mt: 3 }}>
-        <Typography variant="h5">Question {currentQuestionIndex + 1}</Typography>
-        <Typography variant="body1" sx={{ mb: 2 }}>{test.questions[currentQuestionIndex].question}</Typography>
-        <Grid container spacing={2}>
-          {test.questions[currentQuestionIndex].options.map((option, index) => (
-            <Grid item xs={12} sm={6} key={index}>
-              <Paper
-                sx={{
-                  p: 2,
-                  cursor: 'pointer',
-                  backgroundColor: selectedAnswers[currentQuestionIndex] === option ? '#d1e7dd' : '#f0f0f0',
-                  '&:hover': { backgroundColor: '#e0e0e0' },
-                }}
-                onClick={() => handleAnswerSelection(index)}
-              >
-                {option}
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item>
-            <Button variant="outlined" onClick={handlePrevious} startIcon={<ArrowBack />}>Previous</Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" onClick={handleMarkForReview}>Mark for Review</Button>
-          </Grid>
-          <Grid item>
-            <Button variant="outlined" onClick={handleNext} endIcon={<ArrowForward />}>Next</Button>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Timer and Question Board Section */}
-      <Paper sx={{ p: 3, mt: 3 }}>
-        <Typography variant="h6">Time Remaining: {formatTime(timer)}</Typography>
-        <Grid container spacing={1} sx={{ mt: 2 }}>
-          {test.questions.map((_, index) => (
-            <Grid item key={index}>
-              <Chip
-                label={index + 1}
-                clickable
-                color={
-                  questionStates[index] === 'visited' ? 'primary'
-                    : questionStates[index] === 'answered' ? 'success'
-                    : questionStates[index] === 'review' ? 'warning'
-                    : 'default'
-                }
-                onClick={() => handleQuestionClick(index)}
+    <Container
+      maxWidth="xl"
+      sx={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+        p: 0,
+        m: 0,
+        bgcolor: "#fefefa",
+      }}
+    >
+      <TestHeader
+        test={test}
+        onSubmit={handleSubmit}
+        sx={{ bgcolor: "transparent", fontSize: "1.5rem" }}
+      />
+      <Grid
+        container
+        sx={{ flexGrow: 1, height: "calc(100% - 64px)", p: 0, m: 0 }}
+      >
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            p: 0,
+            m: 0,
+          }}
+        >
+          <Box
+            sx={{
+              flexGrow: 1,
+              width: '90%',
+              display: "flex",
+              flexDirection: "column",
+              p: 0,
+              m: 0,
+              bgcolor: "transparent",
+            }}
+          >
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                p: 2,
+                bgcolor: "transparent",
+              }}
+            >
+              <QuestionComponent
+                question={test.questions[currentQuestionIndex]}
+                index={currentQuestionIndex}
+                selectedAnswer={selectedAnswers[currentQuestionIndex]}
+                onAnswerSelection={handleAnswerSelection}
+                sx={{ width: '50%', bgcolor: "transparent", fontSize: "1.2rem" }}
               />
-            </Grid>
-          ))}
+              <br />
+              <NavigationComponent
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onMarkForReview={handleMarkForReview}
+                sx={{ width: "100%", bgcolor: "transparent", fontSize: "1rem" }}
+              />
+            </Box>
+          </Box>     
         </Grid>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item>
-            <Chip label="Current" color="primary" />
-          </Grid>
-          <Grid item>
-            <Chip label="Not Visited" color="default" />
-          </Grid>
-          <Grid item>
-            <Chip label="Answered" color="success" />
-          </Grid>
-          <Grid item>
-            <Chip label="Review" color="warning" />
-          </Grid>
+
+
+        <Grid
+          item
+          xs={12}
+          sm={4}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            p: 2,
+            bgcolor: "transparent",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              p: 0,
+              m: 0,
+              bgcolor: "transparent",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mb: 2,
+                bgcolor: "",
+              }}
+            >
+              <TimerComponent timer={timer} />
+            </Box>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: "flex",
+                flexDirection: "column",
+                p: 0,
+                mt: 1,
+                bgcolor: "transparent",
+              }}
+            >
+              <QuestionBoardComponent
+                questionStates={questionStates}
+                onQuestionClick={handleQuestionClick}
+                sx={{ bgcolor: "transparent", fontSize: "1rem" }}
+              />
+            </Box>
+          </Box>
         </Grid>
-      </Paper>
+      </Grid>
+      {/* <TestFooter sx={{ bgcolor: "transparent", fontSize: "1.5rem" }} /> */}
     </Container>
   );
 };

@@ -92,7 +92,7 @@ export const processSubmissions = async () => {
 };
 
 // cron job to run every hour
-cron.schedule("0 * * * *", () => {
+cron.schedule("* * * * *", () => {
   console.log("Running hourly evaluation job");
   processSubmissions();
 });

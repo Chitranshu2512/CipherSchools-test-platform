@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import TestDashboardPage from './pages/TestDashboardPage';
 import TestEnvironmentPage from './pages/TestEnvironmentPage';
 import NotFoundPage from './pages/NotFoundPage';
+import FinishPage from './pages/FinishPage';
 
 function AppRouter() {
   return (
@@ -14,6 +15,7 @@ function AppRouter() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<TestDashboardPage />} />
         <Route path="/test-environment" element={<TestEnvironmentPage />} />
+        <Route path="/finish" element={<FinishPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
