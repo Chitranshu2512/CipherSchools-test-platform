@@ -3,10 +3,19 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors"
-import authRoutes from './routes/user.route.js';
-import testRoutes from './routes/test.route.js';
-import submissionRoutes from './routes/submission.route.js';
+// import authRoutes from './routes/user.route.js';
+// import testRoutes from './routes/test.route.js';
+// import submissionRoutes from './routes/submission.route.js';
 
+let authRoutes, testRoutes, submissionRoutes;
+
+try {
+  authRoutes = await import('./routes/user.route.js');
+  testRoutes = await import('./routes/test.route.js');
+  submissionRoutes = await import('./routes/submission.route.js');
+} catch (err) {
+  console.error("Error loading routes:", err);
+}
 const app = express()
 
 
